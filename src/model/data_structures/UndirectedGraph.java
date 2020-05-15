@@ -1,25 +1,29 @@
 package model.data_structures;
 
-public class UndirectedGraph<Key extends Comparable<Key>, Vertex> implements IUndirectedGraph<Key, Vertex>{
+import java.util.NoSuchElementException;
+
+public class UndirectedGraph<Key extends NearComparable<Key>, Vertex> implements IUndirectedGraph<Key, Vertex>{
 
 	private EdgeWeightedGraph graph;
-	private LinearProbingHash<Key, Integer> keyToInteger;
-	private LinearProbingHash<Integer, Key> integerToKey;
+	
+	private IRedBlackBST<Key, Integer> keyToIndex;
+	private LinearProbingHash<Integer, Key> indexToKey;
 
 	private int V;
 	private LinearProbingHash<Key, Vertex> infoVertex;
 	
 	public UndirectedGraph( int v ){
 		graph = new EdgeWeightedGraph(v);
-		keyToInteger = new LinearProbingHash<Key, Integer>();
-		integerToKey = new LinearProbingHash<Integer, Key>();
-		infoVertex =  new LinearProbingHash<Key, Vertex>();
+		keyToIndex = new RedBlackBST<Key, Integer>();
+		indexToKey = new LinearProbingHash<Integer, Key>(v);
+		infoVertex =  new LinearProbingHash<Key, Vertex>(v);
+		
 		V = 0;
 	}
 	
 	public int V() {
 		
-		return graph.V();
+		return V;
 	}
 
 	
@@ -29,47 +33,23 @@ public class UndirectedGraph<Key extends Comparable<Key>, Vertex> implements IUn
 	}
 
 	
-	public void addEdge(Key idVertexIni, Key idVertexEnd, double cost) {
-		if(!keyToInteger.contains(idVertexIni)){
-			keyToInteger.put(idVertexIni, V);
+	public void addEdge(Key vertexIniKey, Key vertexEndKey, double haversianCost, double totalFeaturesCost) {
+		if(!keyToIndex.contains(vertexIniKey)){
+			keyToIndex.put(vertexIniKey, V);
+			indexToKey.put(V, vertexIniKey);
 			V++;
 		}
 		
-		if(!keyToInteger.contains(idVertexEnd)){
-			keyToInteger.put(idVertexEnd, V);
+		if(!keyToIndex.contains(vertexEndKey)){
+			keyToIndex.put(vertexEndKey, V);
+			indexToKey.put(V, vertexEndKey);
 			V++;
 		}
 		
-		Edge e = new Edge(keyToInteger.get(idVertexIni), keyToInteger.get(idVertexEnd), cost);
+		Edge e = new Edge(keyToIndex.get(vertexIniKey), keyToIndex.get(vertexEndKey), haversianCost, totalFeaturesCost);
 		graph.addEdge(e);
 	}
-
 	
-	public Vertex getInfoVertex(Key idVertex) {
-		
-		return infoVertex.get(idVertex);
-	}
-
-	
-	public void setInfoVertex(Key idVertex, Vertex infoV) {
-		
-		infoVertex.put(idVertex, infoV);
-	}
-
-	
-	public double getCostArc(Key idVertexIni, Key idVertexEnd) {
-		
-//		keyToInteger.get(idVertexIni);
-//		
-//		return graph.;
-	}
-
-	
-	public void setCostArc(Key idVertexIni, Key idVertexEnd, double cost) {
-		
-		
-	}
-
 	
 	public void addVertex(Key idVertex, Vertex infoV) {
 		if(V >= graph.V()) {
@@ -84,23 +64,87 @@ public class UndirectedGraph<Key extends Comparable<Key>, Vertex> implements IUn
 		}
 		
 		infoVertex.put(idVertex, infoV);
-		
-		if( !keyToInteger.contains(idVertex) ){
-			keyToInteger.put(idVertex, V);
+
+		if( !keyToIndex.contains(idVertex) ){
+			keyToIndex.put(idVertex, V);
+			indexToKey.put(V, idVertex);
 			V++;
 		}
 	}
 
+	public Key getKeyByIdx( int idx ){
+		return indexToKey.get(idx);
+	}
+	
+	public Vertex getInfoVertex(Key idVertex) {
+		
+		return infoVertex.get(idVertex);
+	}
+
+	public Vertex getInfoVertexByIdx(int idVertex){
+		Key vertexKey = indexToKey.get(idVertex);
+		return infoVertex.get(vertexKey);
+	}
+	
+	public void setInfoVertex(Key idVertex, Vertex infoV) {
+		
+		infoVertex.put(idVertex, infoV);
+	}
+
+	
+	public double getHaversianCostArc(Key idVertexIni, Key idVertexEnd) throws NoSuchElementException{
+		return getEdge(idVertexIni, idVertexEnd).weight1();
+	}
+	
+	public double getTotalFeaturesCostArc(Key idVertexIni, Key idVertexEnd) throws NoSuchElementException{
+		return getEdge(idVertexIni, idVertexEnd).weight2();
+	}
+	
+	public void setHaversianCostArc(Key idVertexIni, Key idVertexEnd, double cost)  throws NoSuchElementException{
+		getEdge(idVertexIni, idVertexEnd).setWeight1(cost);
+	}
+	
+	public void setTotalFeaturesCostArc(Key idVertexIni, Key idVertexEnd, double cost) throws NoSuchElementException{
+		getEdge(idVertexIni, idVertexEnd).setWeight2(cost);;
+	}
+	
+	private Edge getEdge(Key idVertexIni, Key idVertexEnd) throws NoSuchElementException{
+		Integer keyIni = keyToIndex.get(idVertexIni);
+		Integer keyEnd = keyToIndex.get(idVertexEnd);
+		
+		if( keyIni == null )
+			throw new NoSuchElementException("idVertexIni vertex is not in the graph");
+		else if( keyEnd == null )
+			throw new NoSuchElementException("idVertexEnd vertex is not in the graph");
+		
+		Bag<Edge> edges = getVertexEdgesByIdx(keyIni);
+		
+		for( Edge e : edges ){
+			if( e.either() == keyEnd || e.other(keyIni) == keyEnd)
+				return e;
+		}
+		
+		throw new NoSuchElementException("No exist an arc between idVertexIni and idVertexEnd");
+	}
+	
+	public Bag<Edge> getVertexEdgesByIdx( int idVertex ){
+		return graph.getVertexEdges(idVertex);
+	}
+
+	public int getNearestVertexIdx( Key idVertex ){
+		int idx = keyToIndex.getNearestTo(idVertex);
+		return idx;
+	}
 	
 	public Iterable<Key> adj(Key idVertex) {
 		
-		Iterable<Edge> adjacentes = graph.adj(keyToInteger.get(idVertex));
-		Bag<Key> res = new Bag<>();
+		Iterable<Edge> adjacentes = graph.adj(keyToIndex.get(idVertex));
+		Bag<Key> res = new Bag<Key>();
 
 		for(Edge e: adjacentes) {
-			Key id1 = integerToKey.get(e.either());
+			Key id1 = indexToKey.get(e.either());
 			if(id1.equals(idVertex)) {
-				Key id2 = integerToKey.get(e.other(e.either()));
+				Key id2 = indexToKey.get(e.other(e.either()));
 				res.add(id2);
 			}
 			else {
@@ -118,9 +162,11 @@ public class UndirectedGraph<Key extends Comparable<Key>, Vertex> implements IUn
 		
 	}
 
-	
 	public void dfs(Key idVertex) {
 		
+	}
+	
+	private void bfs(Key idVertex){
 		
 	}
 
@@ -135,12 +181,12 @@ public class UndirectedGraph<Key extends Comparable<Key>, Vertex> implements IUn
 	
 	public Iterable<Key> getCC(Key idVertex) {
 		
-		Bag<Key> res = new Bag<>();
+		Bag<Key> res = new Bag<Key>();
 		
-		int id = calculatedCC.id(keyToInteger.get(idVertex));
+		int id = calculatedCC.id(keyToIndex.get(idVertex));
 		for(int n = 0; n < graph.V(); n++) {
 			if(calculatedCC.id(n) == id) {
-				res.add(integerToKey.get(n));
+				res.add(indexToKey.get(n));
 			}
 		}
 		return res;

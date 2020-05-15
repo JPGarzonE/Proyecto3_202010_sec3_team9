@@ -177,15 +177,15 @@ public class Stack<Item> implements Iterable<Item> {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        Stack<String> stack = new Stack<String>();
-        while (!In.isEmpty()) {
-            String item = In.readString();
-            if (!item.equals("-"))
-                stack.push(item);
-            else if (!stack.isEmpty())
-                StdOut.print(stack.pop() + " ");
-        }
-        StdOut.println("(" + stack.size() + " left on stack)");
+//        Stack<String> stack = new Stack<String>();
+//        while (!In.isEmpty()) {
+//            String item = In.readString();
+//            if (!item.equals("-"))
+//                stack.push(item);
+//            else if (!stack.isEmpty())
+//                StdOut.print(stack.pop() + " ");
+//        }
+//        StdOut.println("(" + stack.size() + " left on stack)");
     }
 }
 

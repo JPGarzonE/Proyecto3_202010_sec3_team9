@@ -52,6 +52,10 @@ public class Feature implements Comparable<Feature> {
 	public String getDetectionMethod() {
 		return featureProperties.detectionMethod;
 	}
+	
+	public Geometry getGeometry(){
+		return featureGeometry;
+	}
 
 	public String getVehicleClass() {
 		return featureProperties.vehicleClass;

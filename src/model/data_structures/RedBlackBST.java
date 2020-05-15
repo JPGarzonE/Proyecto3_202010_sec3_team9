@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public class RedBlackBST<Key extends Comparable<Key>, Value> implements IRedBlackBST<Key, Value> {
+public class RedBlackBST<Key extends NearComparable<Key>, Value> implements IRedBlackBST<Key, Value> {
 
 	private static final boolean RED   = true;
 	
@@ -63,6 +63,34 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> implements IRedBlac
 		return null;
 	}
 
+	public Value getNearestTo(Key key) {
+		if( key == null )
+			throw new IllegalArgumentException("Key can't be null in getNearest(k)");
+		
+		TreeNode<Key, Value> actualNode = root;
+		TreeNode<Key, Value> nearest = root;
+		
+		while( actualNode != null ){
+			int comp = key.compareTo( actualNode.getKey() );
+			
+			if( comp < 0 ){
+				actualNode = actualNode.getLeft();
+				if( actualNode != null && key.compareNearest(nearest.getKey(), actualNode.getKey()) > 0 )
+					nearest = actualNode;
+			}
+			else if( comp > 0 ){
+				actualNode = actualNode.getRight();
+				if( actualNode != null && key.compareNearest(nearest.getKey(), actualNode.getKey()) > 0 )
+					nearest = actualNode;
+			}
+			else{
+				return actualNode.getVal();
+			}
+			
+		}
+		
+		return nearest.getVal();
+	}
 	
 	public int getHeight(Key key) {
 		
@@ -88,7 +116,6 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> implements IRedBlac
 
 	
 	public boolean contains(Key key) {
-		
 		return get(key) != null;
 	}
 

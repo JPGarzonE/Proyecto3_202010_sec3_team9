@@ -27,7 +27,8 @@ public class Edge implements Comparable<Edge> {
 
     private final int v;
     private final int w;
-    private final double weight;
+    private double weight1;
+    private double weight2;
 
     /**
      * Initializes an edge between vertices {@code v} and {@code w} of
@@ -40,22 +41,50 @@ public class Edge implements Comparable<Edge> {
      *         is a negative integer
      * @throws IllegalArgumentException if {@code weight} is {@code NaN}
      */
-    public Edge(int v, int w, double weight) {
+    public Edge(int v, int w, double weight1, double weight2) {
         if (v < 0) throw new IllegalArgumentException("vertex index must be a nonnegative integer");
         if (w < 0) throw new IllegalArgumentException("vertex index must be a nonnegative integer");
-        if (Double.isNaN(weight)) throw new IllegalArgumentException("Weight is NaN");
+        if (Double.isNaN(weight1)) throw new IllegalArgumentException("Weight is NaN");
         this.v = v;
         this.w = w;
-        this.weight = weight;
+        this.weight1 = weight1;
+        this.weight2 = weight2;
     }
 
     /**
-     * Returns the weight of this edge.
+     * Returns the weight 1 of this edge.
      *
-     * @return the weight of this edge
+     * @return the weight 1 of this edge
      */
-    public double weight() {
-        return weight;
+    public double weight1() {
+        return weight1;
+    }
+    
+    /**
+     * Returns the weight 2 of this edge.
+     *
+     * @return the weight 2 of this edge
+     */
+    public double weight2() {
+        return weight2;
+    }
+    
+    /**
+     * Returns the weight 1 of this edge.
+     *
+     * @return the weight 1 of this edge
+     */
+    public void setWeight1( double weight ) {
+        this.weight1 = weight;
+    }
+    
+    /**
+     * Returns the weight 2 of this edge.
+     *
+     * @return the weight 2 of this edge
+     */
+    public void setWeight2( double weight ) {
+        this.weight2 = weight;
     }
 
     /**
@@ -93,7 +122,7 @@ public class Edge implements Comparable<Edge> {
      */
     @Override
     public int compareTo(Edge that) {
-        return Double.compare(this.weight, that.weight);
+        return Double.compare(this.weight1, that.weight1);
     }
 
     /**
@@ -102,7 +131,7 @@ public class Edge implements Comparable<Edge> {
      * @return a string representation of this edge
      */
     public String toString() {
-        return String.format("%d-%d %.5f", v, w, weight);
+        return String.format("%d-%d %.5f", v, w, weight1);
     }
 
     /**
@@ -111,7 +140,7 @@ public class Edge implements Comparable<Edge> {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        Edge e = new Edge(12, 34, 5.67);
+        Edge e = new Edge(12, 34, 5.67, 6.8);
         StdOut.println(e);
     }
 }

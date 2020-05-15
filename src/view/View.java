@@ -7,6 +7,7 @@ import java.util.Map;
 
 import model.data_structures.ArrayNode;
 import model.logic.Feature;
+import model.logic.PoliceStation;;
 
 public class View 
 {
@@ -20,8 +21,11 @@ public class View
 	    
 		public void printMenu()
 		{
-			System.out.println("1. (Req1A) - Obtener los M comparendos con mayor gravedad");
-			System.out.println("2. Exit");
+			System.out.println("1. Write graph in JSON");
+			System.out.println("2. Load Features in the road mesh");
+			System.out.println("3. Load Police Stations in the road mesh");
+			System.out.println("4. Find the nearest vertex id by a latitud and a longitud given");
+			System.out.println("5. Exit");
 			System.out.println("Dar el numero de opcion a resolver, luego oprimir tecla Return: (e.g., 1):");
 		}
 
@@ -37,25 +41,82 @@ public class View
 			}
 			else{
 				System.out.println("\nCOMPARENDO:");
-				System.out.println("\n\tOBJECTID: " + feature.getObjectId());
-				System.out.println("\n\tFECHA_HORA: " + feature.getDate());
-				System.out.println("\n\tINFRACCION: " + feature.getInfraction());
-				System.out.println("\n\tCLASE_VEHI: " + feature.getVehicleClass());
-				System.out.println("\n\tTIPO_SERVI: " + feature.getServiceType());
-				System.out.println("\n\tLOCALIDAD: " + feature.getLocality());
+				System.out.println("\tOBJECTID: " + feature.getObjectId());
+				System.out.println("\tFECHA_HORA: " + feature.getDate());
+				System.out.println("\tINFRACCION: " + feature.getInfraction());
+				System.out.println("\tCLASE_VEHI: " + feature.getVehicleClass());
+				System.out.println("\tTIPO_SERVI: " + feature.getServiceType());
+				System.out.println("\tLOCALIDAD: " + feature.getLocality());
 				System.out.println("\n");
 			}
 			
 		}
 		
-		public void printGeneralFeaturesInfo(int edgesSize, int vertexSize){
+		public void printGeneralFeaturesInfo( int featuresSize, Feature biggestFeature ){
 			
-			System.out.println("\nDATOS GENERALES:");
-			System.out.println("\n-----------------------------------");
+			System.out.println("\nCOMPARENDOS - DATOS GENERALES:");
+			System.out.println("-----------------------------------");
 			
-			System.out.println("\nNUMERO TOTAL DE VERTICES: " + vertexSize);
-			System.out.println("\nNUMERO TOTAL DE ARCOS: " + edgesSize);
+			System.out.println("NUMERO TOTAL DE COMPARENDOS: " + featuresSize);
+			printFeature(biggestFeature);
 						
+		}
+		
+		public void printGeneralRoadMeshInfo( int vertexSize, int edgesSize, int biggestVertexId, Double biggestVertexLatitud,
+				Double biggestVertexLongitud){
+			
+			System.out.println("\nMALLA VIAL - DATOS GENERALES:");
+			System.out.println("-----------------------------------");
+			
+			System.out.println("NUMERO TOTAL DE VERTICES: " + vertexSize);
+			System.out.println("NUMERO TOTAL DE ARCOS: " + edgesSize);
+			printVertex(biggestVertexId, biggestVertexLatitud, biggestVertexLongitud);
+			
+		}
+		
+		public void printVertex(int id, Double latitud, Double longitud){
+			
+			System.out.println("\nVERTICE:");
+			System.out.println("\tID: " + id);
+			System.out.println("\tLATITUD: " + latitud);
+			System.out.println("\tLONGITUD: " + longitud);
+			System.out.println("\n");
+			
+		}
+		
+		public void printGeneralPoliceStationsInfo( int totalSize, PoliceStation biggestPoliceStation ){
+			
+			System.out.println("\nESTACIONES DE POLICIA - DATOS GENERALES:");
+			System.out.println("-----------------------------------");
+			
+			System.out.println("NUMERO TOTAL DE ESTACIONES: " + totalSize);
+			printPoliceStation(biggestPoliceStation);
+			
+		}
+		
+		public void printPoliceStation( PoliceStation policeStation) {
+			if(policeStation == null){
+				System.out.println("No hay info de esta estacion de policia o no existe.");
+			}
+			else{
+				System.out.println("\nESTACION DE POLICIA:");
+				System.out.println("\tOBJECTID: " + policeStation.getObjectId());
+				System.out.println("\tEPODESCRIP: " + policeStation.getDescription());
+				System.out.println("\tEPODIR_SITIO: " + policeStation.getAddress());
+				System.out.println("\tEPOLATITUD: " + policeStation.getLatitud());
+				System.out.println("\tEPOLONGITUD: " + policeStation.getLongitud());
+				System.out.println("\tEPOSERVICIO: " + policeStation.getService());
+				System.out.println("\tEPOHORARIO: " + policeStation.getSchedule());
+				System.out.println("\tEPOTELEFON: " + policeStation.getTelephone());
+				System.out.println("\tEPOIULOCAL: " + policeStation.getLocalIdentifier());
+				System.out.println("\n");
+			}
+		}
+		
+		public void printExecutionTime( long miliseconds ){
+			double seconds = (double)miliseconds / (double)1000;
+			System.out.println("\nEl tiempo de ejecución de la operación fue de:");
+			System.out.println("\t" + miliseconds + " milisegundos ---> " + seconds + " segundos\n\n");
 		}
 		
 		public void printMinimax( double[] minmax ){

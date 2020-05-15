@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public interface ILinearProbing<Key extends Comparable<Key>, Value> {
+public interface ILinearProbingHash<Key extends Comparable<Key>, Value> {
 
 	public void put(Key key ,Value value);
 

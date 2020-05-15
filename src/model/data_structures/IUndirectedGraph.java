@@ -6,15 +6,19 @@ public interface IUndirectedGraph<Key, Vertex> {
 	
 	public int E();
 	
-	public void addEdge(Key idVertexIni, Key idVertexEnd, double cost);
+	public void addEdge(Key idVertexIni, Key idVertexEnd, double cost1, double cost2);
 	
 	public Vertex getInfoVertex(Key idVertex);
 	
 	public void setInfoVertex(Key idVertex, Vertex infoVertex);
 	
-	public double getCostArc(Key idVertexIni, Key idVertexEnd);
+	public double getHaversianCostArc(Key idVertexIni, Key idVertexEnd);
 	
-	public void setCostArc(Key idVertexIni, Key idVertexEnd, double cost);
+	public double getTotalFeaturesCostArc(Key idVertexIni, Key idVertexEnd);
+	
+	public void setHaversianCostArc(Key idVertexIni, Key idVertexEnd, double cost);
+	
+	public void setTotalFeaturesCostArc(Key idVertexIni, Key idVertexEnd, double cost);
 	
 	public void addVertex(Key idVertex, Vertex infoVertex);
 	

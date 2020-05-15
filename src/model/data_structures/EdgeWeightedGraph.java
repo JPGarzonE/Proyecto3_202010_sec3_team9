@@ -95,50 +95,11 @@ public class EdgeWeightedGraph {
         for (int i = 0; i < E; i++) {
             int v = StdRandom.uniform(V);
             int w = StdRandom.uniform(V);
-            double weight = Math.round(100 * StdRandom.uniform()) / 100.0;
-            Edge e = new Edge(v, w, weight);
+            double weight1 = Math.round(100 * StdRandom.uniform()) / 100.0;
+            double weight2 = Math.round(100 * StdRandom.uniform()) / 100.0;
+            Edge e = new Edge(v, w, weight1, weight2);
             addEdge(e);
         }
-    }
-
-    /**  
-     * Initializes an edge-weighted graph from an input stream.
-     * The format is the number of vertices <em>V</em>,
-     * followed by the number of edges <em>E</em>,
-     * followed by <em>E</em> pairs of vertices and edge weights,
-     * with each entry separated by whitespace.
-     *
-     * @param  in the input stream
-     * @throws IllegalArgumentException if {@code in} is {@code null}
-     * @throws IllegalArgumentException if the endpoints of any edge are not in prescribed range
-     * @throws IllegalArgumentException if the number of vertices or edges is negative
-     */
-    public EdgeWeightedGraph(In in) {
-        if (in == null) throw new IllegalArgumentException("argument is null");
-
-        try {
-            V = in.readInt();
-            adj = (Bag<Edge>[]) new Bag[V];
-            for (int v = 0; v < V; v++) {
-                adj[v] = new Bag<Edge>();
-            }
-
-            int E = in.readInt();
-            if (E < 0) throw new IllegalArgumentException("Number of edges must be nonnegative");
-            for (int i = 0; i < E; i++) {
-                int v = in.readInt();
-                int w = in.readInt();
-                validateVertex(v);
-                validateVertex(w);
-                double weight = in.readDouble();
-                Edge e = new Edge(v, w, weight);
-                addEdge(e);
-            }
-        }   
-        catch (NoSuchElementException e) {
-            throw new IllegalArgumentException("invalid input format in EdgeWeightedGraph constructor", e);
-        }
-
     }
 
     /**
@@ -200,6 +161,15 @@ public class EdgeWeightedGraph {
         adj[v].add(e);
         adj[w].add(e);
         E++;
+    }
+    
+    /**
+     * returns the edges of the vertex by param
+     * @param vertex id of the vertex by param
+     * @return Bag of the edges of the vertex
+     */
+    public Bag<Edge> getVertexEdges( int vertex ){
+    	return adj[vertex];
     }
 
     /**
@@ -277,9 +247,9 @@ public class EdgeWeightedGraph {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        In in = new In(args[0]);
-        EdgeWeightedGraph G = new EdgeWeightedGraph(in);
-        StdOut.println(G);
+//        In in = new In(args[0]);
+//        EdgeWeightedGraph G = new EdgeWeightedGraph(in);
+//        StdOut.println(G);
     }
 
 }

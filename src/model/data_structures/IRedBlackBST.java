@@ -12,6 +12,8 @@ public interface IRedBlackBST<Key extends Comparable<Key>, Value> {
 	
 	public Value get(Key key);
 	
+	public Value getNearestTo(Key key);
+	
 	public int getHeight(Key key);
 	
 	public boolean contains(Key key);

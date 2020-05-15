@@ -10,6 +10,8 @@
 
 package model.data_structures;
 
+import model.logic.Geometry;
+
 /**
  *  The {@code LinearProbingHashST} class represents a symbol table of generic
  *  key-value pairs.
@@ -160,11 +162,13 @@ public class LinearProbingHash<Key, Value> {
      */
     public Value get(Key key) {
         if (key == null) throw new IllegalArgumentException("argument to get() is null");
-        for (int i = hash(key); keys[i] != null; i = (i + 1) % m)
+        for (int i = hash(key); keys[i] != null; i = (i + 1) % m){
             if (keys[i].equals(key))
                 return vals[i];
+        }
         return null;
     }
+    
 
     /**
      * Removes the specified key and its associated value from this symbol table     
@@ -251,14 +255,14 @@ public class LinearProbingHash<Key, Value> {
      */
     public static void main(String[] args) { 
         LinearProbingHash<String, Integer> st = new LinearProbingHash<String, Integer>();
-        for (int i = 0; !In.isEmpty(); i++) {
-            String key = In.readString();
-            st.put(key, i);
-        }
-
-        // print keys
-        for (String s : st.keys()) 
-            StdOut.println(s + " " + st.get(s)); 
+//        for (int i = 0; !In.isEmpty(); i++) {
+//            String key = In.readString();
+//            st.put(key, i);
+//        }
+//
+//        // print keys
+//        for (String s : st.keys()) 
+//            StdOut.println(s + " " + st.get(s)); 
     }
 }
 
