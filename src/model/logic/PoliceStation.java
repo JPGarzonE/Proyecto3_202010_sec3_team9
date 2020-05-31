@@ -33,7 +33,7 @@ public class PoliceStation {
 		this.telephone = telephone;
 		this.localIdentifier = localIdentifier;
 		
-		featureGeometry = new Geometry(geomType, coordinates);	
+		featureGeometry = new Geometry(null, geomType, coordinates);	
 	}
 
 	public String getType() {

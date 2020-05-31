@@ -28,11 +28,17 @@ import com.google.gson.stream.JsonReader;
 import Exception.DataStructureException;
 import model.data_structures.ArrayNode;
 import model.data_structures.Bag;
+import model.data_structures.BreadthFirstPaths;
+import model.data_structures.DijkstraUndirectedSP;
+import model.data_structures.EagerPrimMST;
 import model.data_structures.Edge;
+import model.data_structures.GenericEdge;
+import model.data_structures.Graph;
 import model.data_structures.ILinearProbingHash;
 import model.data_structures.IMaxPQ;
 import model.data_structures.IQueue;
 import model.data_structures.IRedBlackBST;
+import model.data_structures.IndexMaxPQ;
 import model.data_structures.LinearProbingHash;
 import model.data_structures.MaxPQ;
 import model.data_structures.Queue;
@@ -84,6 +90,11 @@ public class Modelo {
 	 * Hash that stores the index respective id
 	 */
 	private LinearProbingHash<Integer, Integer> indexToId;
+	
+	/**
+	 * Stores all the intersections ordered by severity
+	 */
+	private IndexMaxPQ<Intersection> topSeverityIntersections;
 	
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
@@ -148,9 +159,77 @@ public class Modelo {
 	}
 	
 	public int getNearestVertexId( Double latitud, Double longitud ){
-		Geometry key = new Geometry("Point", latitud, longitud);
+		Geometry key = new Geometry(-1, "Point", latitud, longitud);
 		int nearestIdx = graph.getNearestVertexIdx(key);
 		return indexToId.get(nearestIdx);
+	}
+	
+	public CheapestPath<Geometry> cheapestPathByDistance( Double initLat, Double initLong, Double endLat, Double endLong ){
+	
+		int initIndex = graph.getNearestVertexIdx(new Geometry( -1, "Point", initLat, initLong ));
+		int endIndex = graph.getNearestVertexIdx(new Geometry( -1, "Point", endLat, endLong ));
+		
+		DijkstraUndirectedSP cheapestPath = new DijkstraUndirectedSP(graph.graph(), initIndex, 1);
+		
+		CheapestPath<Geometry> cp = new CheapestPath<Geometry>();
+		
+		for( Edge e : cheapestPath.pathTo(endIndex) ){
+			Geometry step = graph.getKeyByIdx( e.either() );
+			cp.addPathStep(step, e.weight1());
+		}
+		
+		return cp;
+	}
+	
+	public CheapestPath<GenericEdge<Geometry>> cheapestNetworkBySeverity( int m ){
+		
+		MaxPQ<Integer> topSevereInter = getTopSeverityIntersections().max(m);
+		
+		EagerPrimMST mst = new EagerPrimMST( graph.graph(), topSevereInter.delMax() );
+		
+		Iterator<Edge> edgeIterator = mst.networkPath( topSevereInter ).getPath();
+		CheapestPath<GenericEdge<Geometry>> cp = new CheapestPath<>();
+		
+		while( edgeIterator.hasNext()){
+			Edge e = edgeIterator.next();
+			Geometry eitherGeom = graph.getKeyByIdx( e.either() );
+			Geometry otherGeom = graph.getKeyByIdx( e.other( e.either() ) );
+			
+			GenericEdge<Geometry> edgeGeom = new GenericEdge<Geometry>(eitherGeom, otherGeom, e.weight1(), e.weight2());
+			cp.addPathStep(edgeGeom, edgeGeom.weight1());
+		}
+		
+		return cp;
+	}
+	
+	public CheapestPath<GenericEdge<Geometry>>[] cheapestPathsToAttendFeatures( int m ){
+		
+		IMaxPQ<Integer> topSeverityInter = getTopSeverityIntersections().max(m);
+		
+		BreadthFirstPaths bfs = new BreadthFirstPaths(graph.graph(), topSeverityInter);
+		
+		CheapestPath<GenericEdge<Geometry>>[] cp = (CheapestPath<GenericEdge<Geometry>>[]) new Object[3];
+		
+		return cp;
+	}
+	
+	public IndexMaxPQ<Intersection> getTopSeverityIntersections(){
+		
+		if( topSeverityIntersections != null && topSeverityIntersections.size() == vertexSize() )
+			return topSeverityIntersections;
+		
+		topSeverityIntersections = new IndexMaxPQ<>(vertexSize(), new SevereComparator<Intersection>());
+		
+		for( int e = 0; e < vertexSize(); e++ ){
+			Intersection inter = graph.getInfoVertexByIdx( e );
+			
+			try{
+				topSeverityIntersections.insert( e, inter );
+			}
+			catch( IllegalArgumentException exception ){}
+		}
+		
+		return topSeverityIntersections;
 	}
 	
 	public boolean loadStreets(String verticesPath, String intersectionsPath){
@@ -167,7 +246,7 @@ public class Modelo {
 		      double longitud = Double.parseDouble(line[1]);
 		      double latitud = Double.parseDouble(line[2]);
 		      
-		      loadIntersection(new Geometry("point", latitud, longitud), new Intersection(), id);
+		      loadIntersection(new Geometry(id, "point", latitud, longitud), new Intersection());
 		  }
 		  b.close();
 		  
@@ -306,16 +385,16 @@ public class Modelo {
 		
 	}
 	
-	private void loadIntersection(Geometry key, Intersection inter, Integer id){
+	private void loadIntersection(Geometry key, Intersection inter){
 		if( vertexWithBiggestId == null )
-			vertexWithBiggestId = id;
-		else if( vertexWithBiggestId < id )
-			vertexWithBiggestId = id;
+			vertexWithBiggestId = key.getId();
+		else if( vertexWithBiggestId < key.getId() )
+			vertexWithBiggestId = key.getId();
 		
-		if( !idToIndex.contains(id) ){
+		if( !idToIndex.contains(key.getId()) ){
 			graph.addVertex(key, inter);
-			idToIndex.put(id, graph.V()-1);
-			indexToId.put(graph.V()-1, id);
+			idToIndex.put(key.getId(), graph.V()-1);
+			indexToId.put(graph.V()-1, key.getId());
 		}
 	}
 	
@@ -484,9 +563,9 @@ public class Modelo {
 					elemCoordinates.add(actualCoord);
 				}
 				
-				Geometry vertexKey = new Geometry(elemGeomType, elemCoordinates);
+				Geometry vertexKey = new Geometry(elemVertexId, elemGeomType, elemCoordinates);
 				
-				loadIntersection(vertexKey, new Intersection(), elemVertexId);
+				loadIntersection(vertexKey, new Intersection());
 
 				JsonArray vertexEdges = element.getAsJsonObject().get("adjEdges").getAsJsonArray();
 				
@@ -507,9 +586,9 @@ public class Modelo {
 						eitherElemCoordinates.add(actualCoord);
 					}
 					
-					Geometry eitherVertexKey = new Geometry(eitherVertexGeomType, eitherElemCoordinates);
+					Geometry eitherVertexKey = new Geometry(eitherVertexId, eitherVertexGeomType, eitherElemCoordinates);
 					
-					loadIntersection(eitherVertexKey, new Intersection(), eitherVertexId);
+					loadIntersection(eitherVertexKey, new Intersection());
 					loadEdge(vertexKey, eitherVertexKey, elemVertexId, eitherVertexId, vertexEdgeDistance, 0.0);
 				}
 				
@@ -542,6 +621,7 @@ public class Modelo {
 		int nearestIdx = graph.getNearestVertexIdx(feature.getGeometry());
 		Intersection intersection = graph.getInfoVertexByIdx(nearestIdx);
 		intersection.addFeature(feature);
+		graph.increaseWeight2ByVertexIdx(nearestIdx, 1);
 	}
 
 	private void loadPoliceStationElement(PoliceStation policeStation){

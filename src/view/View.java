@@ -6,7 +6,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import model.data_structures.ArrayNode;
+import model.data_structures.Edge;
+import model.data_structures.GenericEdge;
 import model.logic.Feature;
+import model.logic.Geometry;
 import model.logic.PoliceStation;;
 
 public class View 
@@ -25,7 +28,11 @@ public class View
 			System.out.println("2. Load Features in the road mesh");
 			System.out.println("3. Load Police Stations in the road mesh");
 			System.out.println("4. Find the nearest vertex id by a latitud and a longitud given");
-			System.out.println("5. Exit");
+			System.out.println("5. (Req A1) - Cheapest path between two locations by distance");
+			System.out.println("6. (Req A2) - Cheapest communications net for video cameras in the M most severe intersections");
+			System.out.println("7. (Req C1) - Shortes path to attend the M most severe features");
+			System.out.println("8. Exit");
+			System.out.println("9. Test map");
 			System.out.println("Dar el numero de opcion a resolver, luego oprimir tecla Return: (e.g., 1):");
 		}
 
@@ -82,6 +89,12 @@ public class View
 			System.out.println("\tLONGITUD: " + longitud);
 			System.out.println("\n");
 			
+		}
+		
+		public void printGenericGeometryEdge( GenericEdge<Geometry> edge ){
+			
+			System.out.println("ARCO:");
+			System.out.println("\t" + edge.either().getId() + " --> ( " + edge.either().getId() + "-" + edge.other( edge.either() ).getId() + " )");
 		}
 		
 		public void printGeneralPoliceStationsInfo( int totalSize, PoliceStation biggestPoliceStation ){

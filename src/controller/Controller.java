@@ -1,12 +1,20 @@
 package controller;
 
+import java.util.Iterator;
 import java.util.Scanner;
 
+import com.teamdev.jxmaps.LatLng;
+
 import Exception.DataStructureException;
+import model.data_structures.DynamicArray;
+import model.data_structures.Edge;
+import model.data_structures.GenericEdge;
+import model.logic.CheapestPath;
 import model.logic.Feature;
 import model.logic.Geometry;
 import model.logic.Modelo;
 import model.logic.PoliceStation;
+import view.CustomMap;
 import view.View;
 
 public class Controller {
@@ -55,6 +63,8 @@ public class Controller {
 		
 		long startTime = 0;
 		long endTime = 0;
+		
+		DynamicArray<LatLng[]> paths = null;
 
 		while( !fin ){
 			view.printMenu();
@@ -106,11 +116,144 @@ public class Controller {
 					view.printExecutionTime(endTime);
 					
 					break;
+					
 				case 5:
+					view.printMessage("Begin location");
+					view.printMessage("\tEnter latitud:");
+					Double initLat = lector.nextDouble();
+					view.printMessage("\tEnter longitud:");
+					Double initLong = lector.nextDouble();
+					
+					view.printMessage("\nEnd location");
+					view.printMessage("\tEnter latitud:");
+					Double endLat = lector.nextDouble();
+					view.printMessage("\tEnter longitud:");
+					Double endLong = lector.nextDouble();
+					
+					startTime = System.currentTimeMillis();
+					CheapestPath<Geometry> cp = modelo.cheapestPathByDistance(initLat, initLong, endLat, endLong);
+					
+					paths = new DynamicArray<LatLng[]>();
+					
+					Iterator<Geometry> pathIterator = cp.getPath();
+					LatLng previous = null;
+					int i = 0;
+					while( pathIterator.hasNext() ){
+						Geometry step = pathIterator.next();
+						view.printVertex(step.getId(), step.getLatitud(), step.getLongitud());
+						
+						if( previous != null ){
+							System.out.println("Lat: " + step.getLatitud() + " || Long: " + step.getLongitud());
+							LatLng[] path = {previous, new LatLng(step.getLatitud(), step.getLongitud()) };
+							paths.add( path );
+							System.out.println("i: " + i + " || " + path[0].getLat() + ", " + path[0].getLng()
+									+ " || " + path[1].getLat() + ", " + path[1].getLng());
+						}
+						
+						previous = new LatLng(step.getLatitud(), step.getLongitud());
+					}
+
+					view.printMessage("Numero de vertices: " + cp.size());
+					view.printMessage("El costo mínimo: " + cp.getMinimumCost());
+					view.printMessage("La distancia estimada: " + cp.getDistance());
+					
+					endTime = System.currentTimeMillis() - startTime;
+					view.printExecutionTime(endTime);
+					
+					view.printMessage("Desplegando mapa...");
+							
+					new CustomMap(paths);
+					
+					break;
+					
+				case 6:
+					view.printMessage("M puntos más grave: ");
+					int m = lector.nextInt();
+					
+					startTime = System.currentTimeMillis();
+					
+					paths = new DynamicArray<LatLng[]>();
+					CheapestPath<GenericEdge<Geometry>> cpEdge = modelo.cheapestNetworkBySeverity(m);
+					
+					Iterator<GenericEdge<Geometry>> pathEdgeIterator = cpEdge.getPath();
+
+					while( pathEdgeIterator.hasNext() ){
+						GenericEdge<Geometry> step = pathEdgeIterator.next();
+						view.printGenericGeometryEdge(step);
+						
+						LatLng[] path = {new LatLng(step.either().getLatitud(), step.either().getLongitud()), 
+								new LatLng(step.other( step.either() ).getLatitud(), step.other( step.either() ).getLongitud()) };
+						paths.add( path );
+					}
+					
+					view.printMessage("El costo monetario total: $" + (cpEdge.getDistance()*10000) + " USD");
+					
+					endTime = System.currentTimeMillis() - startTime;
+					view.printExecutionTime(endTime);
+					
+					view.printMessage("Desplegando mapa...");
+							
+					new CustomMap(paths);
+					
+					break;
+					
+				case 7:
+					view.printMessage("M puntos más grave: ");
+					int n = lector.nextInt();
+					
+					startTime = System.currentTimeMillis();
+					
+					paths = new DynamicArray<LatLng[]>();
+					CheapestPath<GenericEdge<Geometry>>[] cheapestAttendPaths = modelo.cheapestPathsToAttendFeatures(n);
+					
+					int j = 1;
+					for( CheapestPath<GenericEdge<Geometry>> cheapPath : cheapestAttendPaths ){
+						view.printMessage("\nM: " + j);
+						String pathstr = "";
+						
+						Iterator<GenericEdge<Geometry>> attendPathIterator = cheapPath.getPath();
+
+						while( attendPathIterator.hasNext() ){
+							GenericEdge<Geometry> step = attendPathIterator.next();
+							
+							pathstr += "(" + step.either().getId() + " --> " + step.other( step.either() ).getId() + "), ";
+							
+							LatLng[] path = {new LatLng(step.either().getLatitud(), step.either().getLongitud()), 
+									new LatLng(step.other( step.either() ).getLatitud(), step.other( step.either() ).getLongitud()) };
+							paths.add( path );
+						}
+						
+						view.printMessage("\tPath: " + pathstr);
+						view.printMessage("\n\tCosto total: " + cheapPath.getDistance());
+						
+						j++;
+					}
+					
+					endTime = System.currentTimeMillis() - startTime;
+					view.printExecutionTime(endTime);
+					
+					view.printMessage("Desplegando mapa...");
+							
+					new CustomMap(paths);
+					
+					break;
+					
+				case 8:
 					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 					lector.close();
 					fin = true;
 					break;
+					
+				case 9:
+					view.printMessage("Probando el mapa");
+					DynamicArray<LatLng[]> test = new DynamicArray<>();
+					LatLng start1 = new LatLng(4.679990219999979, -74.05797039999999);
+					LatLng end1 = new LatLng(4.6767869534884525, -74.04842555522919);
+					
+					LatLng[] line1 = {start1, end1};
+					test.add( line1 );
+					
+					new CustomMap(test);
 
 				default: 
 					view.printMessage("--------- \n Opcion Invalida !! \n---------");

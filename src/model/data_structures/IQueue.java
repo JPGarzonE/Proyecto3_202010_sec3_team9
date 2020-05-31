@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public interface IQueue<Item> {
+public interface IQueue<Item> extends Iterable<Item> {
 
 	public boolean isEmpty();
 	

@@ -36,9 +36,9 @@ public class Property {
 		this.town = town;
 		
 		if( this.serviceType.equalsIgnoreCase("publico") )
-			this.serviceTypePriority = 10;
+			this.serviceTypePriority = 10000;
 		else if (this.serviceType.equalsIgnoreCase("oficial"))
-			this.serviceTypePriority = 5;
+			this.serviceTypePriority = 100;
 		else if (this.serviceType.equalsIgnoreCase("particular"))
 			this.serviceTypePriority = 1;
 	}

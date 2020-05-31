@@ -2,6 +2,7 @@ package model.data_structures;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import model.logic.Feature;
@@ -92,14 +93,14 @@ public class MaxPQ<Value> implements IMaxPQ<Value>{
 	}
 
 	
-	public ArrayList<Value> max(int n) {
+	public Iterator<Value> max(int n) {
 		
 		ArrayList<Value> firstNVals = new ArrayList<Value>(n);
 
-		for( int i = 1; i <= n; i++ )
+		for( int i = 1; i <= n && i < priorityQueue.length; i++ )
 			firstNVals.add( i-1, priorityQueue[i] );
 			
-		return firstNVals;
+		return firstNVals.iterator();
 	}
 
 	
@@ -172,5 +173,14 @@ public class MaxPQ<Value> implements IMaxPQ<Value>{
         priorityQueue[i] = priorityQueue[j];
         priorityQueue[j] = swap;
     }
+
+	public Iterator<Value> iterator() {
+		ArrayList<Value> firstNVals = new ArrayList<Value>(n);
+
+		for( int i = 1; i <priorityQueue.length; i++ )
+			firstNVals.add( i-1, priorityQueue[i] );
+			
+		return firstNVals.iterator();
+	}
 
 }

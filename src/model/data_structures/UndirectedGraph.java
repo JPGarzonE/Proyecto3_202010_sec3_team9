@@ -80,6 +80,10 @@ public class UndirectedGraph<Key extends NearComparable<Key>, Vertex> implements
 		
 		return infoVertex.get(idVertex);
 	}
+	
+	public EdgeWeightedGraph graph(){
+		return graph;
+	}
 
 	public Vertex getInfoVertexByIdx(int idVertex){
 		Key vertexKey = indexToKey.get(idVertex);
@@ -134,6 +138,13 @@ public class UndirectedGraph<Key extends NearComparable<Key>, Vertex> implements
 	public int getNearestVertexIdx( Key idVertex ){
 		int idx = keyToIndex.getNearestTo(idVertex);
 		return idx;
+	}
+	
+	public void increaseWeight2ByVertexIdx(int vertexIdx, double increaseVal){
+		Bag<Edge> edges = getVertexEdgesByIdx(vertexIdx);
+		
+		for( Edge e : edges )
+			e.setWeight2( e.weight2() + increaseVal );
 	}
 	
 	public Iterable<Key> adj(Key idVertex) {

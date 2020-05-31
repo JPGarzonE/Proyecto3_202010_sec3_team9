@@ -1,15 +1,15 @@
 package model.data_structures;
 
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 
-public interface IMaxPQ<Val> {
+public interface IMaxPQ<Val> extends Iterable<Val>{
 
 	public void insert(Val v);
 	
 	public Val max();
 	
-	public ArrayList<Val> max(int n);
+	public Iterator<Val> max(int n);
 	
 	public Val delMax();
 	
@@ -19,4 +19,5 @@ public interface IMaxPQ<Val> {
 	
 	public int size();
 	
+	public Iterator<Val> iterator();
 }

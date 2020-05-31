@@ -16,7 +16,7 @@ public class Feature implements Comparable<Feature> {
 		featureProperties = new Property(objectId, date, detectionMethod, vehicleClass, 
 				serviceType, infraction, reason, locality, town);
 		
-		featureGeometry = new Geometry(geomType, coordinates);
+		featureGeometry = new Geometry(null, geomType, coordinates);
 		
 	}
 
@@ -93,6 +93,19 @@ public class Feature implements Comparable<Feature> {
 				comparation = getObjectId() > compFeature.getObjectId() ? 1 : -1;
 		
 		return comparation;
+	}
+	
+	public int severityCompareTo( Feature other ){
+		
+		int servicePriorityO1 = this.getServiceTypePriority();
+		int servicePriorityO2 = other.getServiceTypePriority();
+		
+		if( servicePriorityO1 > servicePriorityO2 )
+			return 1;
+		else if( servicePriorityO1 < servicePriorityO2 )
+			return -1;
+		else
+			return this.getInfraction().compareTo( other.getInfraction() );
 	}
 	
 	public String toString(){

@@ -10,28 +10,32 @@ public class Geometry implements NearComparable<Geometry>{
 	
 	public ArrayList<Double> coordinates;
 	
-	public Geometry(String type, ArrayList<Double> coordinates){
-		
+	private Integer id;
+	
+	public Geometry(Integer id, String type, ArrayList<Double> coordinates){
+		this.id = id;
 		this.type = type;
 		this.coordinates = coordinates;
-		
 	}
 	
-	public Geometry(String type, Double latitud, Double longitud){
-		
+	public Geometry(int id, String type, Double latitud, Double longitud){
+		this.id = id;
 		this.type = type;
 		this.coordinates = new ArrayList<Double>(3);
 		this.coordinates.add(longitud);
 		this.coordinates.add(latitud);
-		
+	}
+	
+	public Integer getId(){
+		return this.id;
 	}
 	
 	public double getLatitud(){
-		return coordinates.get(0);
+		return coordinates.get(1);
 	}
 	
 	public double getLongitud(){
-		return coordinates.get(1);
+		return coordinates.get(0);
 	}
 
 	public int compareTo(Geometry either) {

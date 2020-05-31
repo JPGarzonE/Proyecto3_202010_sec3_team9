@@ -3,7 +3,7 @@ package model.data_structures;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class Queue<Item> implements Iterable<Item>, IQueue<Item> {
+public class Queue<Item> implements IQueue<Item> {
 	
     private Node<Item> first;    // beginning of queue
     private Node<Item> last;     // end of queue

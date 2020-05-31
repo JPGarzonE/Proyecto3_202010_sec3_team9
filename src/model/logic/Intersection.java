@@ -1,8 +1,9 @@
 package model.logic;
 
 import model.data_structures.Bag;
+import model.data_structures.In;
 
-public class Intersection {
+public class Intersection implements Comparable<Intersection>{
 	
 	private Bag<Feature> features;
 	
@@ -27,5 +28,9 @@ public class Intersection {
 	
 	public Bag<Feature> getFeatures(){
 		return features;
+	}
+
+	public int compareTo(Intersection o) {
+		return 0;
 	}
 }

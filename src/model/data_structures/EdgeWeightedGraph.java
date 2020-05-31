@@ -58,7 +58,7 @@ import java.util.NoSuchElementException;
  *  @author Robert Sedgewick
  *  @author Kevin Wayne
  */
-public class EdgeWeightedGraph {
+public class EdgeWeightedGraph{
     private static final String NEWLINE = System.getProperty("line.separator");
 
     private final int V;
