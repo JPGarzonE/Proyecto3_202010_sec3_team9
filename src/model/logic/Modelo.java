@@ -183,7 +183,7 @@ public class Modelo {
 	
 	public CheapestPath<GenericEdge<Geometry>> cheapestNetworkBySeverity( int m ){
 		
-		MaxPQ<Integer> topSevereInter = getTopSeverityIntersections().max(m);
+		MaxPQ<Integer> topSevereInter = getTopSeverityIntersections().maxPQ(m);
 		
 		EagerPrimMST mst = new EagerPrimMST( graph.graph(), topSevereInter.delMax() );
 		
@@ -204,11 +204,37 @@ public class Modelo {
 	
 	public CheapestPath<GenericEdge<Geometry>>[] cheapestPathsToAttendFeatures( int m ){
 		
-		IMaxPQ<Integer> topSeverityInter = getTopSeverityIntersections().max(m);
+		Integer[] topSeverityInter = getTopSeverityIntersections().max(m);
 		
-		BreadthFirstPaths bfs = new BreadthFirstPaths(graph.graph(), topSeverityInter);
+		BreadthFirstPaths bfs = new BreadthFirstPaths(graph, topSeverityInter, true);
 		
-		CheapestPath<GenericEdge<Geometry>>[] cp = (CheapestPath<GenericEdge<Geometry>>[]) new Object[3];
+		CheapestPath<GenericEdge<Geometry>>[] cp = (CheapestPath<GenericEdge<Geometry>>[]) new CheapestPath[topSeverityInter.length];
+		
+		int i = 0;
+		for( Integer inter : topSeverityInter ){
+			Iterable<Integer> interPath = bfs.pathToPoliceStation(inter);
+			CheapestPath<GenericEdge<Geometry>> interCP = new CheapestPath<>();
+			Integer previous = null;
+			
+			if( interPath != null ){
+				for( Integer pathStep : interPath ){
+					if( previous != null ){
+						Geometry geoInit = graph.getKeyByIdx(previous);
+						Geometry geoEnd = graph.getKeyByIdx(pathStep);
+						Edge edge = graph.getEdge(geoInit, geoEnd);
+						Double w1 = edge == null ? 0 : edge.weight1();
+						Double w2 = edge == null ? 0 : edge.weight2();
+						
+						interCP.addPathStep(new GenericEdge<Geometry>(geoInit, geoEnd, w1, w2), w1);
+					}
+					
+					previous = pathStep;
+				}
+			}
+		
+			cp[i] = interCP;
+			i++;
+		}
 		
 		return cp;
 	}
