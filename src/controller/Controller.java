@@ -257,7 +257,7 @@ public class Controller {
 					break;
 					
 				case 7:
-					view.printMessage("M puntos m√°s graves: ");
+					view.printMessage("M puntos m·s graves: ");
 					int n = lector.nextInt();
 					
 					startTime = System.currentTimeMillis();
