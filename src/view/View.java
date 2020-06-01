@@ -28,10 +28,10 @@ public class View
 			System.out.println("2. Find the nearest vertex id by a latitud and a longitud given");
 			System.out.println("3. (Req A1) - Cheapest path between two locations by distance");
 			System.out.println("4. (Req A2) - Cheapest communications net for video cameras in the M most severe intersections");
-			System.out.println("5. (Req C1) - Shortes path to attend the M most severe features");
-			System.out.println("6. Exit");
-			System.out.println("7. Test map");
-			System.out.println("8. Test C1");
+			System.out.println("5. (Req B1) - Cheapest path between two locations by features");
+			System.out.println("6. (Req B2) - Cheapest communications net for video cameras in the M with most features");
+			System.out.println("7. (Req C1) - Shortes path to attend the M most severe features");
+			System.out.println("8. Exit");
 			System.out.println("Dar el numero de opcion a resolver, luego oprimir tecla Return: (e.g., 1):");
 		}
 
@@ -127,7 +127,7 @@ public class View
 		
 		public void printExecutionTime( long miliseconds ){
 			double seconds = (double)miliseconds / (double)1000;
-			System.out.println("\nEl tiempo de ejecución de la operación fue de:");
+			System.out.println("\nEl tiempo de ejecuciï¿½n de la operaciï¿½n fue de:");
 			System.out.println("\t" + miliseconds + " milisegundos ---> " + seconds + " segundos\n\n");
 		}
 		

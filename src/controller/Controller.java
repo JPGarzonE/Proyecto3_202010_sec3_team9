@@ -5,9 +5,7 @@ import java.util.Scanner;
 
 import com.teamdev.jxmaps.LatLng;
 
-import Exception.DataStructureException;
 import model.data_structures.DynamicArray;
-import model.data_structures.Edge;
 import model.data_structures.GenericEdge;
 import model.logic.CheapestPath;
 import model.logic.Feature;
@@ -25,7 +23,7 @@ public class Controller {
 	/* Instancia de la Vista*/
 	private View view;
 	
-	static final String DATA_PATH_FEATURES = "./data/comparendos_dei_2018_Bogotá_D.C.geojson";
+	static final String DATA_PATH_FEATURES = "./data/comparendos_dei_2018_Bogotï¿½_D.C.geojson";
 	static final String DATA_PATH_POLICE_STATIONS = "./data/estacionpolicia.geojson";
 	static final String DATA_PATH_EDGES = "./data/bogota_arcos.txt";
 	static final String DATA_PATH_VERTICES = "./data/bogota_vertices.txt";
@@ -46,8 +44,8 @@ public class Controller {
 		Scanner lector = new Scanner(System.in);
 		boolean fin = false;
 		
-		view.printMessage("\n La aplicación va a cargar la malla víal desde este archivo: " + DATA_PATH_BOGOTA_MESH_JSON);
-		view.printMessage("\n ¿Esta de acuerdo? (Y/n)");
+		view.printMessage("\n La aplicaciï¿½n va a cargar la malla vï¿½al desde este archivo: " + DATA_PATH_BOGOTA_MESH_JSON);
+		view.printMessage("\n ï¿½Esta de acuerdo? (Y/n)");
 		String answer = lector.next();
 
 		if( answer.equalsIgnoreCase("Y") ){
@@ -135,7 +133,7 @@ public class Controller {
 					}
 
 					view.printMessage("Numero de vertices: " + cp.size());
-					view.printMessage("El costo mínimo: " + cp.getMinimumCost());
+					view.printMessage("El costo mï¿½nimo: " + cp.getMinimumCost());
 					view.printMessage("La distancia estimada: " + cp.getDistance());
 					
 					endTime = System.currentTimeMillis() - startTime;
@@ -148,7 +146,7 @@ public class Controller {
 					break;
 					
 				case 4:
-					view.printMessage("M puntos más grave: ");
+					view.printMessage("M puntos mÃ¡s grave: ");
 					int m = lector.nextInt();
 					
 					startTime = System.currentTimeMillis();
@@ -177,9 +175,89 @@ public class Controller {
 					new CustomMap(paths);
 					
 					break;
-					
+				
 				case 5:
-					view.printMessage("M puntos más grave: ");
+					view.printMessage("Begin location");
+					view.printMessage("\tEnter latitud:");
+					Double initLat2 = lector.nextDouble();
+					view.printMessage("\tEnter longitud:");
+					Double initLong2 = lector.nextDouble();
+					
+					view.printMessage("\nEnd location");
+					view.printMessage("\tEnter latitud:");
+					Double endLat2 = lector.nextDouble();
+					view.printMessage("\tEnter longitud:");
+					Double endLong2 = lector.nextDouble();
+					
+					startTime = System.currentTimeMillis();
+					CheapestPath<Geometry> cp2 = modelo.cheapestPathByFeatures(initLat2, initLong2, endLat2, endLong2);
+					
+					paths = new DynamicArray<LatLng[]>();
+					
+					Iterator<Geometry> pathIterator2 = cp2.getPath();
+					LatLng previous2 = null;
+					int i2 = 0;
+					while( pathIterator2.hasNext() ){
+						Geometry step = pathIterator2.next();
+						view.printVertex(step.getId(), step.getLatitud(), step.getLongitud());
+						
+						if( previous2 != null ){
+							System.out.println("Lat: " + step.getLatitud() + " || Long: " + step.getLongitud());
+							LatLng[] path = {previous2, new LatLng(step.getLatitud(), step.getLongitud()) };
+							paths.add( path );
+							System.out.println("i: " + i2 + " || " + path[0].getLat() + ", " + path[0].getLng()
+									+ " || " + path[1].getLat() + ", " + path[1].getLng());
+						}
+						
+						previous2 = new LatLng(step.getLatitud(), step.getLongitud());
+					}
+
+					view.printMessage("Numero de vertices: " + cp2.size());
+					view.printMessage("El costo mï¿½nimo: " + cp2.getMinimumCost());
+					view.printMessage("La distancia estimada: " + cp2.getDistance());
+					
+					endTime = System.currentTimeMillis() - startTime;
+					view.printExecutionTime(endTime);
+					
+					view.printMessage("Desplegando mapa...");
+							
+					new CustomMap(paths);
+					
+					break;
+					
+				case 6:
+					view.printMessage("M puntos: ");
+					int m2 = lector.nextInt();
+					
+					startTime = System.currentTimeMillis();
+					
+					paths = new DynamicArray<LatLng[]>();
+					CheapestPath<GenericEdge<Geometry>> cpEdge2 = modelo.cheapestNetworkByFeaturesSize(m2);
+					
+					Iterator<GenericEdge<Geometry>> pathEdgeIterator2 = cpEdge2.getPath();
+
+					while( pathEdgeIterator2.hasNext() ){
+						GenericEdge<Geometry> step = pathEdgeIterator2.next();
+						view.printGenericGeometryEdge(step);
+						
+						LatLng[] path = {new LatLng(step.either().getLatitud(), step.either().getLongitud()), 
+								new LatLng(step.other( step.either() ).getLatitud(), step.other( step.either() ).getLongitud()) };
+						paths.add( path );
+					}
+					
+					view.printMessage("El costo monetario total: $" + (cpEdge2.getDistance()*10000) + " USD");
+					
+					endTime = System.currentTimeMillis() - startTime;
+					view.printExecutionTime(endTime);
+					
+					view.printMessage("Desplegando mapa...");
+							
+					new CustomMap(paths);
+					
+					break;
+					
+				case 7:
+					view.printMessage("M puntos mÃ¡s graves: ");
 					int n = lector.nextInt();
 					
 					startTime = System.currentTimeMillis();
@@ -219,26 +297,10 @@ public class Controller {
 					
 					break;
 					
-				case 6:
+				case 8:
 					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 					lector.close();
 					fin = true;
-					break;
-					
-				case 7:
-					view.printMessage("Probando el mapa");
-					DynamicArray<LatLng[]> test = new DynamicArray<>();
-					LatLng start1 = new LatLng(4.679990219999979, -74.05797039999999);
-					LatLng end1 = new LatLng(4.6767869534884525, -74.04842555522919);
-					
-					LatLng[] line1 = {start1, end1};
-					test.add( line1 );
-					
-					new CustomMap(test);
-					
-				case 8:
-					view.printMessage("Probando el metodo C1");
-					modelo.cheapestPathsToAttendFeatures(7);
 					break;
 
 				default: 
@@ -277,7 +339,7 @@ public class Controller {
 	}
 	
 	private void loadGraphFromTXT(){
-		view.printMessage("--------- \nCargando malla víal de Bogotá...");
+		view.printMessage("--------- \nCargando malla vï¿½al de Bogotï¿½...");
 	    modelo = new Modelo();
 	    modelo.loadStreets(DATA_PATH_VERTICES, DATA_PATH_EDGES);
 	    int vertexSize = modelo.vertexSize();

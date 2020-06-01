@@ -97,6 +97,11 @@ public class Modelo {
 	private IndexMaxPQ<Intersection> topSeverityIntersections;
 	
 	/**
+	 * Stores all the intersections ordered by it's size
+	 */ 
+	private IndexMaxPQ<Intersection> topFeaturesIntersections;
+	
+	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
 	 */
 	public Modelo()
@@ -181,6 +186,23 @@ public class Modelo {
 		return cp;
 	}
 	
+	public CheapestPath<Geometry> cheapestPathByFeatures( Double initLat, Double initLong, Double endLat, Double endLong ){
+		
+		int initIndex = graph.getNearestVertexIdx(new Geometry( -1, "Point", initLat, initLong ));
+		int endIndex = graph.getNearestVertexIdx(new Geometry( -1, "Point", endLat, endLong ));
+		
+		DijkstraUndirectedSP cheapestPath = new DijkstraUndirectedSP(graph.graph(), initIndex, 2);
+		
+		CheapestPath<Geometry> cp = new CheapestPath<Geometry>();
+		
+		for( Edge e : cheapestPath.pathTo(endIndex) ){
+			Geometry step = graph.getKeyByIdx( e.either() );
+			cp.addPathStep(step, e.weight1());
+		}
+		
+		return cp;
+	}
+	
 	public CheapestPath<GenericEdge<Geometry>> cheapestNetworkBySeverity( int m ){
 		
 		MaxPQ<Integer> topSevereInter = getTopSeverityIntersections().maxPQ(m);
@@ -188,6 +210,27 @@ public class Modelo {
 		EagerPrimMST mst = new EagerPrimMST( graph.graph(), topSevereInter.delMax() );
 		
 		Iterator<Edge> edgeIterator = mst.networkPath( topSevereInter ).getPath();
+		CheapestPath<GenericEdge<Geometry>> cp = new CheapestPath<>();
+		
+		while( edgeIterator.hasNext()){
+			Edge e = edgeIterator.next();
+			Geometry eitherGeom = graph.getKeyByIdx( e.either() );
+			Geometry otherGeom = graph.getKeyByIdx( e.other( e.either() ) );
+			
+			GenericEdge<Geometry> edgeGeom = new GenericEdge<Geometry>(eitherGeom, otherGeom, e.weight1(), e.weight2());
+			cp.addPathStep(edgeGeom, edgeGeom.weight1());
+		}
+		
+		return cp;
+	}
+	
+	public CheapestPath<GenericEdge<Geometry>> cheapestNetworkByFeaturesSize( int m ){
+		
+		MaxPQ<Integer> topFeatureInter = getTopFeaturesIntersections().max(m);
+		
+		EagerPrimMST mst = new EagerPrimMST( graph.graph(), topFeatureInter.delMax() );
+		
+		Iterator<Edge> edgeIterator = mst.networkPath( topFeatureInter ).getPath();
 		CheapestPath<GenericEdge<Geometry>> cp = new CheapestPath<>();
 		
 		while( edgeIterator.hasNext()){
@@ -256,6 +299,25 @@ public class Modelo {
 		}
 		
 		return topSeverityIntersections;
+	}
+	
+	public IndexMaxPQ<Intersection> getTopFeaturesIntersections(){
+		
+		if( topFeaturesIntersections != null && topFeaturesIntersections.size() == vertexSize() )
+			return topFeaturesIntersections;
+		
+		topFeaturesIntersections = new IndexMaxPQ<>(vertexSize(), new SizeComparator<Intersection>());
+		
+		for( int e = 0; e < vertexSize(); e++ ){
+			Intersection inter = graph.getInfoVertexByIdx( e );
+			
+			try{
+				topFeaturesIntersections.insert( e, inter );
+			}
+			catch( IllegalArgumentException exception ){}
+		}
+		
+		return topFeaturesIntersections;
 	}
 	
 	public boolean loadStreets(String verticesPath, String intersectionsPath){
