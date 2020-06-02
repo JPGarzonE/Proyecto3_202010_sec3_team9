@@ -101,6 +101,8 @@ public class Modelo {
 	 */ 
 	private IndexMaxPQ<Intersection> topFeaturesIntersections;
 	
+	
+	private IndexMaxPQ<Intersection> impactZonePoliceStations;
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
 	 */
@@ -251,9 +253,30 @@ public class Modelo {
 		
 		BreadthFirstPaths bfs = new BreadthFirstPaths(graph.graph(), topSeverityInter);
 		
+		@SuppressWarnings("unchecked")
 		CheapestPath<GenericEdge<Geometry>>[] cp = (CheapestPath<GenericEdge<Geometry>>[]) new Object[3];
 		
 		return cp;
+	}
+	
+	public IndexMaxPQ<Intersection> impactZonesPoliceStation() {
+		
+		impactZonePoliceStations = new IndexMaxPQ<>(vertexSize(), new SevereComparator<Intersection>());
+		
+		for(int i=0; i<featuresSize; i++)
+		{
+			cheapestPathsToAttendFeatures(featuresSize);
+			for( int e = 0; e < vertexSize(); e++ ){
+				Intersection inter = graph.getInfoVertexByIdx( e );
+				
+				try{
+					impactZonePoliceStations.insert( e, inter );
+				}
+				catch( IllegalArgumentException exception ){}
+			}
+			
+		}
+		return impactZonePoliceStations;
 	}
 	
 	public IndexMaxPQ<Intersection> getTopSeverityIntersections(){

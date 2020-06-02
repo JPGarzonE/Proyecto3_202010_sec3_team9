@@ -33,8 +33,9 @@ public class View
 			System.out.println("7. (Req B1) - Cheapest path between two locations by features");
 			System.out.println("8. (Req B2) - Cheapest communications net for video cameras in the M with most features");
 			System.out.println("9. (Req C1) - Shortes path to attend the M most severe features");
-			System.out.println("10. Exit");
-			System.out.println("11. Test map");
+			System.out.println("10. (Req C2) - Impact zones police stations");
+			System.out.println("11. Exit");
+			System.out.println("12. Test map");
 			System.out.println("Dar el numero de opcion a resolver, luego oprimir tecla Return: (e.g., 1):");
 		}
 

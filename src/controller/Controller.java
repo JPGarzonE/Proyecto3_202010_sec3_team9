@@ -7,10 +7,12 @@ import com.teamdev.jxmaps.LatLng;
 
 import model.data_structures.DynamicArray;
 import model.data_structures.GenericEdge;
+import model.data_structures.IndexMaxPQ;
 import model.logic.CheapestPath;
 import model.logic.Feature;
 import model.logic.Geometry;
 import model.logic.Modelo;
+import model.logic.Intersection;
 import model.logic.PoliceStation;
 import view.CustomMap;
 import view.View;
@@ -315,14 +317,15 @@ public class Controller {
 					new CustomMap(paths);
 					
 					break;
+				
 					
-				case 10:
+				case 11:
 					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 					lector.close();
 					fin = true;
 					break;
 					
-				case 11:
+				case 12:
 					view.printMessage("Probando el mapa");
 					DynamicArray<LatLng[]> test = new DynamicArray<>();
 					LatLng start1 = new LatLng(4.679990219999979, -74.05797039999999);
