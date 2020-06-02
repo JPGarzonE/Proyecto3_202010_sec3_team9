@@ -42,6 +42,9 @@ package model.data_structures;
 
 import java.util.Iterator;
 
+import model.logic.Geometry;
+import model.logic.Intersection;
+
 /**
  *  The {@code BreadthFirstPaths} class represents a data type for finding
  *  shortest paths (number of edges) from a source vertex <em>s</em>
@@ -67,6 +70,7 @@ public class BreadthFirstPaths {
     private boolean[] marked;  // marked[v] = is there an s-v path
     private int[] edgeTo;      // edgeTo[v] = previous edge on shortest s-v path
     private int[] distTo;      // distTo[v] = number of edges shortest s-v path
+    private LinearProbingHash<Integer, Iterable<Integer>> nearestPoliceStationPaths;
 
     /**
      * Computes the shortest path between the source vertex {@code s}
@@ -114,14 +118,18 @@ public class BreadthFirstPaths {
      * @throws IllegalArgumentException unless {@code 0 <= s < V} for each vertex
      *         {@code s} in {@code sources}
      */
-    public BreadthFirstPaths(EdgeWeightedGraph G, Iterable<Integer> sources) {
+    public BreadthFirstPaths(UndirectedGraph<Geometry, Intersection> G, Integer[] sources, boolean searchPoliceStations) {
+    	nearestPoliceStationPaths = new LinearProbingHash<>();
         marked = new boolean[G.V()];
         distTo = new int[G.V()];
         edgeTo = new int[G.V()];
         for (int v = 0; v < G.V(); v++)
             distTo[v] = INFINITY;
         validateVertices(sources);
-        bfs(G, sources);
+        if( searchPoliceStations )
+        	bfsPoliceStations(G, sources);
+        else	
+        	bfs(G, sources);
     }
 
 
@@ -169,7 +177,9 @@ public class BreadthFirstPaths {
     }
     
     // breadth-first search from multiple sources
-    private void bfs(EdgeWeightedGraph G, Iterable<Integer> sources) {
+    private void bfs(UndirectedGraph<Geometry, Intersection> G, Integer[] sources) {
+    	EdgeWeightedGraph edgeGraph = G.graph();
+    	
         Queue<Integer> q = new Queue<Integer>();
         for (int s : sources) {
             marked[s] = true;
@@ -178,7 +188,7 @@ public class BreadthFirstPaths {
         }
         while (!q.isEmpty()) {
             int v = q.dequeue();
-            for (Edge e : G.adj(v)) {
+            for (Edge e : edgeGraph.adj(v)) {
             	int w = e.other(v);
                 if (!marked[w]) {
                     edgeTo[w] = v;
@@ -188,6 +198,55 @@ public class BreadthFirstPaths {
                 }
             }
         }
+    }
+    
+ // breadth-first search from multiple sources
+    private void bfsPoliceStations(UndirectedGraph<Geometry, Intersection> G, Integer[] sources) {
+    	EdgeWeightedGraph edgeGraph = G.graph();
+    	
+        for (int s : sources) {
+            Queue<Integer> q = new Queue<Integer>();
+            for (int v = 0; v < G.V(); v++){
+                distTo[v] = INFINITY;
+            	marked[v] = false;
+        	}
+            
+            distTo[s] = 0;
+            marked[s] = true;
+            q.enqueue(s);
+            String strstr = "no marked: ";
+            String str = "w: ";
+            boolean policeFind = false;
+            while (!q.isEmpty()) {
+                int v = q.dequeue();
+                for (Edge e : edgeGraph.adj(v)) {
+                	int w = e.other(v);
+                	str += "-" + G.getKeyByIdx(w).getId();
+                    if (!marked[w]) {
+                        edgeTo[w] = v;
+                        distTo[w] = distTo[v] + 1;
+                        marked[w] = true;
+                        q.enqueue(w);
+                        
+                        Intersection edgeInter = G.getInfoVertexByIdx(w);
+                        strstr += "-" + G.getKeyByIdx(w).getId();
+                        if( !edgeInter.getPoliceStations().isEmpty() ){
+                        	System.out.println("Police statiosn true");
+                        	nearestPoliceStationPaths.put(s, pathTo(w));
+                        	policeFind = true;
+                        	break;
+                        }
+                        
+                    }
+                }
+                if( policeFind ) break;
+            }
+            if( s == 398 ){
+            	System.out.println(strstr);
+            	System.out.println(str);
+            }
+        }
+        
     }
 
     /**
@@ -212,7 +271,15 @@ public class BreadthFirstPaths {
         validateVertex(v);
         return distTo[v];
     }
+    
+    public int size(){
+    	return marked.length;
+    }
 
+    public int edgeTo(int v) {
+    	return edgeTo[v];
+    }
+    
     /**
      * Returns a shortest path between the source vertex {@code s} (or sources)
      * and {@code v}, or {@code null} if no such path.
@@ -231,6 +298,12 @@ public class BreadthFirstPaths {
         return path;
     }
 
+    public Iterable<Integer> pathToPoliceStation(int v){
+    	validateVertex(v);
+    	if( !nearestPoliceStationPaths.contains(v) ) return null;
+    	
+    	return nearestPoliceStationPaths.get(v);
+    }
 
     // check optimality conditions for single source
     private boolean check(Graph G, int s) {
@@ -285,6 +358,18 @@ public class BreadthFirstPaths {
 
     // throw an IllegalArgumentException unless {@code 0 <= v < V}
     private void validateVertices(Iterable<Integer> vertices) {
+        if (vertices == null) {
+            throw new IllegalArgumentException("argument is null");
+        }
+        for (Integer v : vertices) {
+            if (v == null) {
+                throw new IllegalArgumentException("vertex is null");
+            }
+            validateVertex(v);
+        }
+    }
+    
+    private void validateVertices(Integer[] vertices) {
         if (vertices == null) {
             throw new IllegalArgumentException("argument is null");
         }

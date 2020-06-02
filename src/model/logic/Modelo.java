@@ -5,19 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,24 +17,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
-import Exception.DataStructureException;
-import model.data_structures.ArrayNode;
 import model.data_structures.Bag;
 import model.data_structures.BreadthFirstPaths;
 import model.data_structures.DijkstraUndirectedSP;
 import model.data_structures.EagerPrimMST;
 import model.data_structures.Edge;
 import model.data_structures.GenericEdge;
-import model.data_structures.Graph;
-import model.data_structures.ILinearProbingHash;
-import model.data_structures.IMaxPQ;
-import model.data_structures.IQueue;
-import model.data_structures.IRedBlackBST;
 import model.data_structures.IndexMaxPQ;
 import model.data_structures.LinearProbingHash;
 import model.data_structures.MaxPQ;
-import model.data_structures.Queue;
-import model.data_structures.RedBlackBST;
 import model.data_structures.UndirectedGraph;
 
 /**
@@ -207,7 +190,7 @@ public class Modelo {
 	
 	public CheapestPath<GenericEdge<Geometry>> cheapestNetworkBySeverity( int m ){
 		
-		MaxPQ<Integer> topSevereInter = getTopSeverityIntersections().max(m);
+		MaxPQ<Integer> topSevereInter = getTopSeverityIntersections().maxPQ(m);
 		
 		EagerPrimMST mst = new EagerPrimMST( graph.graph(), topSevereInter.delMax() );
 		
@@ -228,7 +211,7 @@ public class Modelo {
 	
 	public CheapestPath<GenericEdge<Geometry>> cheapestNetworkByFeaturesSize( int m ){
 		
-		MaxPQ<Integer> topFeatureInter = getTopFeaturesIntersections().max(m);
+		MaxPQ<Integer> topFeatureInter = getTopFeaturesIntersections().maxPQ(m);
 		
 		EagerPrimMST mst = new EagerPrimMST( graph.graph(), topFeatureInter.delMax() );
 		
@@ -249,12 +232,37 @@ public class Modelo {
 	
 	public CheapestPath<GenericEdge<Geometry>>[] cheapestPathsToAttendFeatures( int m ){
 		
-		IMaxPQ<Integer> topSeverityInter = getTopSeverityIntersections().max(m);
+		Integer[] topSeverityInter = getTopSeverityIntersections().max(m);
 		
-		BreadthFirstPaths bfs = new BreadthFirstPaths(graph.graph(), topSeverityInter);
+		BreadthFirstPaths bfs = new BreadthFirstPaths(graph, topSeverityInter, true);
 		
-		@SuppressWarnings("unchecked")
-		CheapestPath<GenericEdge<Geometry>>[] cp = (CheapestPath<GenericEdge<Geometry>>[]) new Object[3];
+		CheapestPath<GenericEdge<Geometry>>[] cp = (CheapestPath<GenericEdge<Geometry>>[]) new CheapestPath[topSeverityInter.length];
+		
+		int i = 0;
+		for( Integer inter : topSeverityInter ){
+			Iterable<Integer> interPath = bfs.pathToPoliceStation(inter);
+			CheapestPath<GenericEdge<Geometry>> interCP = new CheapestPath<>();
+			Integer previous = null;
+			
+			if( interPath != null ){
+				for( Integer pathStep : interPath ){
+					if( previous != null ){
+						Geometry geoInit = graph.getKeyByIdx(previous);
+						Geometry geoEnd = graph.getKeyByIdx(pathStep);
+						Edge edge = graph.getEdge(geoInit, geoEnd);
+						Double w1 = edge == null ? 0 : edge.weight1();
+						Double w2 = edge == null ? 0 : edge.weight2();
+						
+						interCP.addPathStep(new GenericEdge<Geometry>(geoInit, geoEnd, w1, w2), w1);
+					}
+					
+					previous = pathStep;
+				}
+			}
+		
+			cp[i] = interCP;
+			i++;
+		}
 		
 		return cp;
 	}

@@ -25,17 +25,13 @@ public class View
 		public void printMenu()
 		{
 			System.out.println("1. Write graph in JSON");
-			System.out.println("2. Load Features in the road mesh");
-			System.out.println("3. Load Police Stations in the road mesh");
-			System.out.println("4. Find the nearest vertex id by a latitud and a longitud given");
-			System.out.println("5. (Req A1) - Cheapest path between two locations by distance");
-			System.out.println("6. (Req A2) - Cheapest communications net for video cameras in the M most severe intersections");
-			System.out.println("7. (Req B1) - Cheapest path between two locations by features");
-			System.out.println("8. (Req B2) - Cheapest communications net for video cameras in the M with most features");
-			System.out.println("9. (Req C1) - Shortes path to attend the M most severe features");
-			System.out.println("10. (Req C2) - Impact zones police stations");
-			System.out.println("11. Exit");
-			System.out.println("12. Test map");
+			System.out.println("2. Find the nearest vertex id by a latitud and a longitud given");
+			System.out.println("3. (Req A1) - Cheapest path between two locations by distance");
+			System.out.println("4. (Req A2) - Cheapest communications net for video cameras in the M most severe intersections");
+			System.out.println("5. (Req B1) - Cheapest path between two locations by features");
+			System.out.println("6. (Req B2) - Cheapest communications net for video cameras in the M with most features");
+			System.out.println("7. (Req C1) - Shortes path to attend the M most severe features");
+			System.out.println("8. Exit");
 			System.out.println("Dar el numero de opcion a resolver, luego oprimir tecla Return: (e.g., 1):");
 		}
 

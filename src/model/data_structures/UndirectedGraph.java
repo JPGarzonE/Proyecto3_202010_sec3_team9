@@ -112,7 +112,7 @@ public class UndirectedGraph<Key extends NearComparable<Key>, Vertex> implements
 		getEdge(idVertexIni, idVertexEnd).setWeight2(cost);;
 	}
 	
-	private Edge getEdge(Key idVertexIni, Key idVertexEnd) throws NoSuchElementException{
+	public Edge getEdge(Key idVertexIni, Key idVertexEnd) throws NoSuchElementException{
 		Integer keyIni = keyToIndex.get(idVertexIni);
 		Integer keyEnd = keyToIndex.get(idVertexEnd);
 		

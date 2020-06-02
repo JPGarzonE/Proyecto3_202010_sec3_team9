@@ -86,7 +86,7 @@ public class CustomMap extends MapView {
 		circle.setRadius(20);
 		circle.setVisible(true);
 		circle.setOptions(circleOptions);
-		
+
 //		System.out.println("Circle End Point: ");
 //		System.out.println(center.getLat());
 //		System.out.println(center.getLng());

@@ -177,13 +177,30 @@ public class IndexMaxPQ<Key extends Comparable<Key>> implements Iterable<Integer
         return max;
     }
     
-    public MaxPQ<Integer> max(int n){
+    public MaxPQ<Integer> maxPQ(int n){
     	
     	MaxPQ<Integer> firstNVals = new MaxPQ<Integer>(); 
-
-		for( int i = 1; i <= n && i < pq.length; i++ )
+    	System.out.println("n: " + n);
+    	n =  n > pq.length ? pq.length : n;
+		for( int i = 1; i <= n; i++ ){
+			System.out.println("i: " + i);
 			firstNVals.insert(pq[i]);
+		}
 			
+		System.out.println("SIZE ITERATOR: " + firstNVals.size());
+		return firstNVals;
+    	
+    }
+    
+    public Integer[] max(Integer n){
+    	
+    	Integer[] firstNVals = (Integer[]) new Integer[n]; 
+
+    	n =  n > pq.length ? pq.length : n;
+		for( int i = 1; i <= n; i++ ){
+			firstNVals[i-1] = pq[i];
+		}
+
 		return firstNVals;
     	
     }

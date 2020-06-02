@@ -51,11 +51,9 @@ public class Controller {
 		String answer = lector.next();
 
 		if( answer.equalsIgnoreCase("Y") ){
-			long startTime = System.currentTimeMillis();
 //			loadGraphFromTXT();
-			loadGraphFromJSON();
-			long endTime = System.currentTimeMillis() - startTime;
-			view.printExecutionTime(endTime);
+//			loadGraphFromJSON();
+			loadGraphFromJSONWithElements();
 		}else{
 			view.printMessage("\n Cambie el archivo y vuelva a entrar. Gracias!");
 			fin = true;
@@ -84,23 +82,6 @@ public class Controller {
 					
 					break;
 				case 2:
-					startTime = System.currentTimeMillis();
-					
-					loadFeaturesInGraph();
-					
-					endTime = System.currentTimeMillis() - startTime;
-					view.printExecutionTime(endTime);
-					
-					break;
-				case 3:
-					startTime = System.currentTimeMillis();
-					
-					loadPoliceStaionsInGraph();
-					
-					endTime = System.currentTimeMillis() - startTime;
-					view.printExecutionTime(endTime);
-					break;
-				case 4:
 					view.printMessage("Enter Latitud:");
 					Double latitud = lector.nextDouble();
 					view.printMessage("Enter Longitud:");
@@ -117,7 +98,7 @@ public class Controller {
 					
 					break;
 					
-				case 5:
+				case 3:
 					view.printMessage("Begin location");
 					view.printMessage("\tEnter latitud:");
 					Double initLat = lector.nextDouble();
@@ -166,8 +147,8 @@ public class Controller {
 					
 					break;
 					
-				case 6:
-					view.printMessage("M puntos m�s grave: ");
+				case 4:
+					view.printMessage("M puntos más grave: ");
 					int m = lector.nextInt();
 					
 					startTime = System.currentTimeMillis();
@@ -197,7 +178,7 @@ public class Controller {
 					
 					break;
 				
-				case 7:
+				case 5:
 					view.printMessage("Begin location");
 					view.printMessage("\tEnter latitud:");
 					Double initLat2 = lector.nextDouble();
@@ -246,7 +227,7 @@ public class Controller {
 					
 					break;
 					
-				case 8:
+				case 6:
 					view.printMessage("M puntos: ");
 					int m2 = lector.nextInt();
 					
@@ -277,8 +258,8 @@ public class Controller {
 					
 					break;
 					
-				case 9:
-					view.printMessage("M puntos m�s grave: ");
+				case 7:
+					view.printMessage("M puntos m�s graves: ");
 					int n = lector.nextInt();
 					
 					startTime = System.currentTimeMillis();
@@ -304,7 +285,7 @@ public class Controller {
 						}
 						
 						view.printMessage("\tPath: " + pathstr);
-						view.printMessage("\n\tCosto total: " + cheapPath.getDistance());
+						view.printMessage("\tCosto total: " + cheapPath.getDistance());
 						
 						j++;
 					}
@@ -319,31 +300,42 @@ public class Controller {
 					break;
 				
 					
-				case 11:
+				case 8:
 					view.printMessage("--------- \n Hasta pronto !! \n---------"); 
 					lector.close();
 					fin = true;
-					break;
-					
-				case 12:
-					view.printMessage("Probando el mapa");
-					DynamicArray<LatLng[]> test = new DynamicArray<>();
-					LatLng start1 = new LatLng(4.679990219999979, -74.05797039999999);
-					LatLng end1 = new LatLng(4.6767869534884525, -74.04842555522919);
-					
-					LatLng[] line1 = {start1, end1};
-					test.add( line1 );
-					
-					new CustomMap(test);
-
-				default: 
-					view.printMessage("--------- \n Opcion Invalida !! \n---------");
 					break;
 			}
 
 		}
 		
 	}	
+	
+	private void loadGraphFromJSONWithElements(){
+		loadGraphFromJSON();
+		loadFeatures();
+		loadPoliceStations();
+	}
+	
+	private void loadPoliceStations(){
+		System.out.println("CARGANDO ESTACIONES DE POLICIA...");
+		long startTime = System.currentTimeMillis();
+		
+		loadPoliceStaionsInGraph();
+		
+		long endTime = System.currentTimeMillis() - startTime;
+		view.printExecutionTime(endTime);
+	}
+	
+	private void loadFeatures(){
+		System.out.println("CARGANDO COMPARENDOS...");
+		long startTime = System.currentTimeMillis();
+		
+		loadFeaturesInGraph();
+		
+		long endTime = System.currentTimeMillis() - startTime;
+		view.printExecutionTime(endTime);
+	}
 	
 	private void loadGraphFromTXT(){
 		view.printMessage("--------- \nCargando malla v�al de Bogot�...");
@@ -358,7 +350,9 @@ public class Controller {
 	}
 	
 	private void loadGraphFromJSON(){
-		view.printMessage("--------- \nCargando malla v�al de Bogot�...");
+		view.printMessage("--------- \nCARGANDO MALLA VIAL DE BOGOTA...");
+		long startTime = System.currentTimeMillis();
+		
 	    modelo = new Modelo(DATA_PATH_BOGOTA_MESH_JSON);
 	    int vertexSize = modelo.vertexSize();
 	    int edgesSize = modelo.edgesSize();
@@ -366,6 +360,9 @@ public class Controller {
 	    Geometry geom = modelo.getGeometryById(biggestVertexId);
 	    
 	    view.printGeneralRoadMeshInfo(vertexSize, edgesSize, biggestVertexId, geom.getLatitud(), geom.getLongitud());
+		
+	    long endTime = System.currentTimeMillis() - startTime;
+		view.printExecutionTime(endTime);
 	}
 	
 	private void loadFeaturesInGraph(){

@@ -97,9 +97,9 @@ public class MaxPQ<Value> implements IMaxPQ<Value>{
 		
 		ArrayList<Value> firstNVals = new ArrayList<Value>(n);
 
-		for( int i = 1; i <= n && i < priorityQueue.length; i++ )
-			firstNVals.add( i-1, priorityQueue[i] );
-			
+		for( int i = 1; i < n && i < priorityQueue.length; i++ )
+			firstNVals.add( priorityQueue[i] );
+
 		return firstNVals.iterator();
 	}
 
